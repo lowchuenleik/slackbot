@@ -3,7 +3,6 @@ import time
 from slackclient import SlackClient
 
 SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
-SLACK_TOKEN = os.environ.get('OAUTH_TOKEN')
 slack_client = SlackClient(SLACK_TOKEN)
 
 #Set using the "set" command in windows

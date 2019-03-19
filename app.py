@@ -162,6 +162,7 @@ def test_print():
 def get_messages(sc,slack_args, messages, filter_func):
     
     history = sc.api_call("channels.history", **slack_args)
+    print("HISTROY",history)
     last_ts = history['messages'][-1]['ts'] if (history['has_more'] and history) else False
     filtered = list(filter(filter_func, history['messages']))
     all_messages = messages + filtered
