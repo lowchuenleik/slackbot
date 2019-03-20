@@ -210,7 +210,7 @@ def get_messages(sc,slack_args, filter_func):
     #last_ts = history['messages'][-1]['ts'] if (history['has_more'] and history) else False
     filtered = list(filter(filter_func, history['messages']))[::-1]
     all_messages = filtered #Most recent one now at end of list
-    db.set('last_message',all_messages[-1][ts])
+    db.set('last_message',all_messages[-1]['ts'])
     print('Fetched {} messages. {} Total now.'.format(len(filtered), len(all_messages)))
 
     return {
@@ -224,7 +224,7 @@ def scrape_slack(sc,slack_args, filter_func = lambda x: x):
     if slack_args['oldest']==0:
         sc=SlackClient(os.environ.get('OAUTH_TOKEN'))
         history = sc.api_call("channels.history", **slack_args)
-        db.set('last_message',history['messages'][0][ts])
+        db.set('last_message',history['messages'][0]['ts'])
         print('Server reboot and invalid time, re-enter last message.')
         return []
     results = get_messages(sc, slack_args,filter_func)
