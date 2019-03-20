@@ -7,6 +7,8 @@ from flask import Flask, request, make_response, render_template
 pyBot = bot.Bot()
 slack = pyBot.client
 
+db=redis.from_url(os.environ.get('REDISCLOUD_URL'))
+
 app = Flask(__name__)
 
 def _event_handler(event_type, slack_event):
@@ -159,6 +161,16 @@ def test_print():
         send_message(slack_client,slack_args['channel'],message)
     return ''
 
+@app.route('/')
+def hello_world():
+    name=db.get('name') or'World'
+    return 'Hello %s!' % name
+
+@app.route('/setname/<name>')
+def setname(name):
+    db.set('name',name)
+    return 'Name updated.'
+
 def get_messages(sc,slack_args, messages, filter_func):
     
     history = sc.api_call("channels.history", **slack_args)
@@ -198,6 +210,36 @@ def send_message(slack_client,channel_id,message):
         username = 'Comms Bot',
         icon_emoji=':robot_face:'
     )
+
+def send_mail(recipient, subject, message):
+
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    username = EMAIL_USERNAME
+    password = EMAIL_PASSWORD
+
+    msg = MIMEMultipart()
+    msg['From'] = username
+    msg['To'] = recipient
+    msg['Subject'] = subject
+    msg.attach(MIMEText(message))
+
+    try:
+        print('sending mail to ' + recipient + ' on ' + subject)
+
+        mailServer = smtplib.SMTP('smtp-mail.outlook.com', 587)
+        mailServer.ehlo()
+        mailServer.starttls()
+        mailServer.ehlo()
+        mailServer.login(username, password)
+        mailServer.sendmail(username, recipient, msg.as_string())
+        mailServer.close()
+
+    except error as e:
+        print(str(e))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
