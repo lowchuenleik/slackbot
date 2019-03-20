@@ -169,7 +169,7 @@ def test_print():
     return 'Nothing to see!'
 
 @app.route("/sct", methods=["GET","POST"])
-def test_print():
+def temp_trial():
     SLACK_TOKEN = os.environ.get('OAUTH_TOKEN')
     slack_client=SlackClient(SLACK_TOKEN)
     ###
