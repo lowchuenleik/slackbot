@@ -1,5 +1,6 @@
 import json
 import bot
+import redis
 import os
 from slackclient import SlackClient
 from flask import Flask, request, make_response, render_template
