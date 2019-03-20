@@ -9,6 +9,7 @@ pyBot = bot.Bot()
 slack = pyBot.client
 
 db=redis.from_url(os.environ.get('REDISCLOUD_URL'))
+db.set('last_message',0)
 
 app = Flask(__name__)
 
@@ -160,7 +161,7 @@ def test_print():
         message="Event:" + msg['text']
         print(message)
         send_message(slack_client,slack_args['channel'],message)
-    return ''
+    return 'Nothing to see!'
 
 @app.route('/')
 def hello_world():
@@ -176,22 +177,23 @@ def get_messages(sc,slack_args, messages, filter_func):
     
     history = sc.api_call("channels.history", **slack_args)
     print("HISTROY",history)
-    last_ts = history['messages'][-1]['ts'] if (history['has_more'] and history) else False
+    #last_ts = history['messages'][-1]['ts'] if (history['has_more'] and history) else False
     filtered = list(filter(filter_func, history['messages']))
     all_messages = messages + filtered
     print('Fetched {} messages. {} Total now.'.format(len(filtered), len(all_messages)))
 
     return {
         'messages': all_messages,
-        'last_ts': last_ts,
+        #'last_ts': last_ts,
     }
 
 def scrape_slack(sc,slack_args, filter_func = lambda x: x):
     results = get_messages(sc,slack_args, [], filter_func)
 
-    while results['last_ts']:
-        slack_args['latest'] = results['last_ts']
-        results = get_messages(sc, slack_args, results['messages'], filter_func)
+    #check if DB last_message TS is 0, means that this is initial scrpae 
+
+    slack_args['oldest'] = db.get('last_message')
+    results = get_messages(sc, slack_args, results['messages'], filter_func)
 
     print('Done fetching messages. Found {} in total.'.format(len(results['messages'])))
     return results['messages']
