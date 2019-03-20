@@ -1,5 +1,6 @@
 import json
 import bot
+import time
 import redis
 import os
 from slackclient import SlackClient
@@ -155,31 +156,61 @@ def test_print():
         'oldest': "",
     }
 
+    temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and '[JCSU]')
+    print(temp)
+    subject = time.strftime('JCSU Slack Channel Feed on %A %d %B %Y \n\n\n')
+    email = subject+'------------------\n\n\n'
+    for msg in temp:
+        message="Event:" + msg['text']
+        email = email + '\n\n'+msg['ext'][7:]
+        print(message)
+        send_message(slack_client,slack_args['channel'],message)
+    send_mail("chuenleik_3837@hotmail.com",subject,email)
+    return 'Nothing to see!'
+
+@app.route("/sct", methods=["GET","POST"])
+def test_print():
+    SLACK_TOKEN = os.environ.get('OAUTH_TOKEN')
+    slack_client=SlackClient(SLACK_TOKEN)
+    ###
+    channel_id=''
+    old_json=[]
+    ###
+    #^ remove
+
+    slack_args = {
+        'channel': "CFRV15GBU",
+        'oldest': "",
+    }
+
     temp = scrape_slack(slack_client,slack_args,lambda x:'client_msg_id' in x)
     print(temp)
     for msg in temp:
         message="Event:" + msg['text']
         print(message)
         send_message(slack_client,slack_args['channel'],message)
-    return 'Nothing to see!'
+    return 'Here is the request'+json.loads(request.data)
 
 @app.route('/')
 def hello_world():
     name=db.get('name') or'World'
-    return 'Hello %s!' % name
+    return 'Hello {0}. DB Timestep is at {1}'.format(name,db.get('last_message'))
 
 @app.route('/setname/<name>')
 def setname(name):
     db.set('name',name)
     return 'Name updated.'
 
-def get_messages(sc,slack_args, messages, filter_func):
+def get_messages(sc,slack_args, filter_func):
+
+    #Everytime we call get_messages we put the past behind us
     
     history = sc.api_call("channels.history", **slack_args)
     print("HISTROY",history)
     #last_ts = history['messages'][-1]['ts'] if (history['has_more'] and history) else False
-    filtered = list(filter(filter_func, history['messages']))
-    all_messages = messages + filtered
+    filtered = list(filter(filter_func, history['messages']))[::-1]
+    all_messages = filtered #Most recent one now at end of list
+    db.set('last_message',all_messages[-1][ts])
     print('Fetched {} messages. {} Total now.'.format(len(filtered), len(all_messages)))
 
     return {
@@ -188,12 +219,15 @@ def get_messages(sc,slack_args, messages, filter_func):
     }
 
 def scrape_slack(sc,slack_args, filter_func = lambda x: x):
-    results = get_messages(sc,slack_args, [], filter_func)
-
     #check if DB last_message TS is 0, means that this is initial scrpae 
-
     slack_args['oldest'] = db.get('last_message')
-    results = get_messages(sc, slack_args, results['messages'], filter_func)
+    if slack_args['oldest']==0:
+        sc=SlackClient(os.environ.get('OAUTH_TOKEN'))
+        history = sc.api_call("channels.history", **slack_args)
+        db.set('last_message',history['messages'][0][ts])
+        print('Server reboot and invalid time, re-enter last message.')
+        return []
+    results = get_messages(sc, slack_args,filter_func)
 
     print('Done fetching messages. Found {} in total.'.format(len(results['messages'])))
     return results['messages']
