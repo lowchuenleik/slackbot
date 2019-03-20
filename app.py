@@ -8,6 +8,8 @@ from flask import Flask, request, make_response, render_template
 
 pyBot = bot.Bot()
 slack = pyBot.client
+EMAIL_USERNAME = os.environ.get('EMAIL_USERNAME')
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
 db=redis.from_url(os.environ.get('REDISCLOUD_URL'))
 db.set('last_message',0)
@@ -156,7 +158,7 @@ def test_print():
         'oldest': "",
     }
 
-    temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and '[JCSU]')
+    temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]' in))
     print(temp)
     subject = time.strftime('JCSU Slack Channel Feed on %A %d %B %Y \n\n\n')
     email = subject+'------------------\n\n\n'
