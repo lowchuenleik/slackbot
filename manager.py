@@ -4,9 +4,7 @@ import bot
 import os
 from slackclient import SlackClient
 from app import app
-from app import send_message,send_mail,scrape_slack,
-from app import send_mail
-from app import send_mail
+from app import send_message,send_mail,scrape_slack
 
 manager = Manager(app)
 SLACK_TOKEN = os.environ.get('OAUTH_TOKEN')
