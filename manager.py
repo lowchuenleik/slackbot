@@ -39,6 +39,7 @@ def getmessages():
             send_message(slack_client,slack_args['channel'],message)
         send_mail("chuenleik_3837@hotmail.com",subject,email)
     else:
+        print("NO EVENTS FOUND.....\n\n\n")
         pass
     return ''
 

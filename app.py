@@ -218,7 +218,8 @@ def get_messages(sc,slack_args, filter_func):
     #last_ts = history['messages'][-1]['ts'] if (history['has_more'] and history) else False
     filtered = list(filter(filter_func, history['messages']))[::-1]
     all_messages = filtered #Most recent one now at end of list
-    db.set('last_message',all_messages[-1]['ts'])
+    if all_messages:
+        db.set('last_message',all_messages[-1]['ts'])
     print('Fetched {} messages. {} Total now.'.format(len(filtered), len(all_messages)))
 
     return {
