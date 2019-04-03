@@ -168,13 +168,19 @@ def test_print():
     print(temp)
     subject = time.strftime('JCSU Slack Channel Feed on %A %d %B %Y \n\n\n')
     email = subject+'------------------\n\n\n'
-    for msg in temp:
-        message="Event:" + msg['text']
-        email = email + '\n\n'+msg['text'][7:]
-        print(message)
-        send_message(slack_client,slack_args['channel'],message)
-    send_mail("chuenleik_3837@hotmail.com",subject,email)
+    if temp:
+        for msg in temp:
+            message="Event:" + msg['text']
+            email = email + '\n\n'+msg['text'][7:]
+            print(message)
+            send_message(slack_client,slack_args['channel'],message)
+        send_mail("chuenleik_3837@hotmail.com",subject,email)
+    else:
+        send_message(slack_client,slack_args['channel'],"+++NO LATEST EVENTS FOUND+++")
+        print("NO EVENTS FOUND.....\n\n\n")
+        pass
     return 'Nothing to see!'
+
 
 @app.route("/sct", methods=["GET","POST"])
 def temp_trial():
