@@ -12,7 +12,13 @@ EMAIL_USERNAME = os.environ.get('EMAIL_USERNAME')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
 db=redis.from_url(os.environ.get('REDISCLOUD_URL'))
-db.set('last_message',0)
+
+#Don't do this!!! :OOO <-- fix it
+try:
+    db.get('last_message')
+except: #doesn't exist lols so set it to 0, and get all 
+    #db.set('last_message',1553105005.009300) #hardcoded timestamp on 2/4/2019
+    db.set('last_message',time.time())
 
 app = Flask(__name__)
 
@@ -158,7 +164,7 @@ def test_print():
         'oldest': "",
     }
 
-    temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]' in x['text']))
+    temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]'==x['text'][:6].upper()))
     print(temp)
     subject = time.strftime('JCSU Slack Channel Feed on %A %d %B %Y \n\n\n')
     email = subject+'------------------\n\n\n'
@@ -207,7 +213,8 @@ def get_messages(sc,slack_args, filter_func):
 
     #Everytime we call get_messages we put the past behind us
     
-    history = sc.api_call("channels.history", **slack_args)
+    # history = sc.api_call("channels.history", **slack_args)
+    history = sc.api_call("channels.history", oldest=slack_args['oldest'])
     #print("HISTROY",history)
     #last_ts = history['messages'][-1]['ts'] if (history['has_more'] and history) else False
     filtered = list(filter(filter_func, history['messages']))[::-1]

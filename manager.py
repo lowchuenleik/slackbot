@@ -27,16 +27,19 @@ def getmessages():
         'oldest': "",
     }
 
-    temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]' in x['text']))
+    temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]'==x['text'][:6].upper()))
     print(temp)
     subject = time.strftime('JCSU Slack Channel Feed on %A %d %B %Y \n\n\n')
     email = subject+'------------------\n\n\n'
-    for msg in temp:
-        message="Event:" + msg['text']
-        email = email + '\n\n'+msg['text'][7:]
-        print(message)
-        send_message(slack_client,slack_args['channel'],message)
-    send_mail("chuenleik_3837@hotmail.com",subject,email)
+    if temp:
+        for msg in temp:
+            message="Event:" + msg['text']
+            email = email + '\n\n'+msg['text'][7:]
+            print(message)
+            send_message(slack_client,slack_args['channel'],message)
+        send_mail("chuenleik_3837@hotmail.com",subject,email)
+    else:
+        pass
     return ''
 
 #trial = 'Test\n Test\n How are you\n'
