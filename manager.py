@@ -15,6 +15,7 @@ EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 @manager.command
 def getmessages():
     print("Trying?")
+    TARGET_MAIL = "h.harris@jesus.cam.ac.uk"
     slack_client=SlackClient(SLACK_TOKEN)
     
     ###
@@ -37,10 +38,9 @@ def getmessages():
             email = email + '\n\n'+msg['text'][7:]
             print(message)
             send_message(slack_client,slack_args['channel'],message)
-        send_mail("chuenleik_3837@hotmail.com",subject,email)
+        send_mail(TARGET_MAIL,subject,email)
     else:
         print("NO EVENTS FOUND.....\n\n\n")
-        pass
     return ''
 
 #trial = 'Test\n Test\n How are you\n'

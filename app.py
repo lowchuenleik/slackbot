@@ -3,6 +3,7 @@ import bot
 import time
 import redis
 import os
+import thread
 from slackclient import SlackClient
 from flask import Flask, request, make_response, render_template
 
@@ -164,7 +165,9 @@ def test_print():
         'oldest': "",
     }
 
-    temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]'==x['text'][:6].upper()))
+    #temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]'==x['text'][:6].upper()))
+    thrd = Thread(target=scrape_slack,args=[slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]'==x['text'][:6].upper())])
+    thrd.start()
     print(temp)
     subject = time.strftime('JCSU Slack Channel Feed on %A %d %B %Y \n\n\n')
     email = subject+'------------------\n\n\n'
@@ -174,12 +177,12 @@ def test_print():
             email = email + '\n\n'+msg['text'][7:]
             print(message)
             send_message(slack_client,slack_args['channel'],message)
-        send_mail("chuenleik_3837@hotmail.com",subject,email)
+        #send_mail("chuenleik_3837@hotmail.com",subject,email)
     else:
         send_message(slack_client,slack_args['channel'],"+++NO LATEST EVENTS FOUND+++")
         print("NO EVENTS FOUND.....\n\n\n")
         pass
-    return 'Nothing to see!'
+    return 'Finished!'
 
 
 @app.route("/sct", methods=["GET","POST"])
