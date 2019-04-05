@@ -3,7 +3,7 @@ import bot
 import time
 import redis
 import os
-import thread
+import threading
 from slackclient import SlackClient
 from flask import Flask, request, make_response, render_template
 
@@ -166,7 +166,7 @@ def test_print():
     }
 
     #temp = scrape_slack(slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]'==x['text'][:6].upper()))
-    thrd = Thread(target=scrape_slack,args=[slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]'==x['text'][:6].upper())])
+    thrd = threading.Thread(target=scrape_slack,args=[slack_client,slack_args,lambda x:('client_msg_id' in x) and ('[JCSU]'==x['text'][:6].upper())])
     thrd.start()
     print(temp)
     subject = time.strftime('JCSU Slack Channel Feed on %A %d %B %Y \n\n\n')

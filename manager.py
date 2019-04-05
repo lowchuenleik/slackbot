@@ -11,11 +11,12 @@ manager = Manager(app)
 SLACK_TOKEN = os.environ.get('OAUTH_TOKEN')
 EMAIL_USERNAME = os.environ.get('EMAIL_USERNAME')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+TARGET_MAIL = os.environ.get('TARGET_MAIL')
 
 @manager.command
 def getmessages():
     print("Trying?")
-    TARGET_MAIL = "h.harris@jesus.cam.ac.uk"
+    #TARGET_MAIL = "h.harris@jesus.cam.ac.uk"
     my_mail = "chuenleik_3837@hotmail.com"
     slack_client=SlackClient(SLACK_TOKEN)
     
